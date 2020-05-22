@@ -1,0 +1,192 @@
+/*
+Project: AKA Triage Suite
+Sub-Project: AKA Triage Tool
+Component: Encase Processing  
+Purpose:	This class can be used to run the Encase
+			Indexer, file hasher, and recovering folders
+			for all evidence files in the case.
+Supporting tool: Encase
+Supporting URL: https://opentext.com
+Developer: Dave Posocco
+
+*/
+
+class EvHashThreadClass: ThreadClass {
+	CaseClass C;
+	StatusTrackerClass S;
+
+	EvHashThreadClass(CaseClass c, StatusTrackerClass s):
+		ThreadClass(),
+		C = c,
+		S = s
+	{
+	}
+	virtual void Run() {
+		EvProcessorClass  startHash(C, S);
+		startHash.RunProcessorHash();
+		return;
+	}
+}
+
+class EvIdxThreadClass: ThreadClass {
+	CaseClass C;
+	StatusTrackerClass S;
+
+	EvIdxThreadClass(CaseClass c, StatusTrackerClass s):
+		ThreadClass(),
+		C = c,
+		S = s
+	{
+	}
+	virtual void Run() {
+		EvProcessorClass  startIdx(C, S);
+		startIdx.RunProcessorIndex();
+		return;
+	}
+}
+
+class EvRecThreadClass: ThreadClass {
+	CaseClass C;
+	StatusTrackerClass S;
+
+	EvRecThreadClass(CaseClass c, StatusTrackerClass s):
+		ThreadClass(),
+		C = c,
+		S = s
+	{
+	}
+	virtual void Run() {
+		EvProcessorClass  startRecover(C, S);
+		startRecover.RunProcessorRecover();
+		return;
+	} 
+}
+
+class EvProcessorClass {
+	
+	CaseClass Case;
+	StatusTrackerClass stat;
+	
+	EvProcessorClass(CaseClass c, StatusTrackerClass s):
+		Case = c,
+		stat = s
+		{
+		}
+  
+	bool RunProcessorHash() {
+		bool                               success;
+		ProcessorManagerClass              evidenceProcessor(); 
+		stat.setHashStatus("Starting");
+		stat.getStatus();
+		if (Case) {
+
+		  evidenceProcessor.Options.General = ProcessorManagerClass::OptionsClass::MD5 |
+											ProcessorManagerClass::OptionsClass::SHA1;
+
+		  evidenceProcessor.Options.QueueImmediately = true;
+		  evidenceProcessor.Options.Stage = ProcessorManagerClass::OptionsClass::NONE;
+		  
+		  if (evidenceProcessor.Create(Case)) {
+			forall (EvidenceClass evidence in Case.EvidenceRoot()) {
+			  stat.setHashStatus("Running");
+			  stat.getStatus();
+			  success = evidenceProcessor.Run(evidence);
+			}
+			stat.setHashStatus("Complete");
+			stat.getStatus();
+		  }
+		  else {
+			SystemClass::Message(0, "Error", "Unable to hash entries or processor engine failure occured during hashing.");
+			stat.setHashStatus("Failed");
+		  }
+			 
+		}
+		else {
+		  SystemClass::Message(0, "Error", "Create a case before running this script!");
+		  stat.setHashStatus("Failed");
+		}
+
+		return success;
+	}
+  
+	bool RunProcessorIndex() {
+		bool                               success;
+		ProcessorManagerClass              evidenceProcessor();  //Same as EnCase Evidence Processor Engine
+		stat.setIndexStatus("Starting");
+		stat.getStatus();
+		if (Case) {
+			
+		  evidenceProcessor.Options.General = 
+				ProcessorManagerClass::OptionsClass::INDEX |
+				ProcessorManagerClass::OptionsClass::INDEXLUCENE |
+				ProcessorManagerClass::OptionsClass::INDEXSLACKUC |
+				ProcessorManagerClass::OptionsClass::INDEXSKIPKNOWNHASH;
+				
+		  evidenceProcessor.Options.QueueImmediately = true;
+		  
+		  evidenceProcessor.Options.Stage = ProcessorManagerClass::OptionsClass::NONE;
+		  
+		  evidenceProcessor.Options.Mount = ProcessorManagerClass::OptionsClass::MOUNTREG |
+				ProcessorManagerClass::OptionsClass::MOUNTARCHIVE;
+				
+		  evidenceProcessor.Options.Analyzers = ProcessorManagerClass::OptionsClass::STANDARDANALYZER;
+		  
+		  if (evidenceProcessor.Create(Case)) {
+			forall (EvidenceClass evidence in Case.EvidenceRoot()) {
+			  stat.setIndexStatus("Running");
+			  stat.getStatus();
+			  success = evidenceProcessor.Run(evidence);
+			}
+			stat.setIndexStatus("Complete");
+			stat.getStatus();
+		  }
+		  else {
+			SystemClass::Message(0, "Error", "Unable to created index or processor engine failure occured during indexing.");
+			stat.setIndexStatus("Failed");
+		  }
+		}
+		else {
+		  SystemClass::Message(0, "Error", "Create a case before running this script!");
+		  stat.setIndexStatus("Failed");
+		}	
+		return success;
+	}
+  
+	bool RunProcessorRecover() {
+		bool                               success;
+		ProcessorManagerClass              evidenceProcessor();
+		stat.setRecoverStatus("Starting");
+		stat.getStatus();
+		if (Case) {
+
+		  evidenceProcessor.Options.General = ProcessorManagerClass::OptionsClass::RECOVERFOLDERS |
+				ProcessorManagerClass::OptionsClass::RECOVERFOLDERSRECON;
+
+		  evidenceProcessor.Options.QueueImmediately = true;
+
+		  evidenceProcessor.Options.Stage = ProcessorManagerClass::OptionsClass::NONE;
+		  
+		  if (evidenceProcessor.Create(Case)) {
+			forall (EvidenceClass evidence in Case.EvidenceRoot()) {
+			  stat.setRecoverStatus("Running");
+			  stat.getStatus();
+			  success = evidenceProcessor.Run(evidence);
+			}
+			stat.setRecoverStatus("Complete");
+			stat.getStatus();
+		  }
+		  else {
+			SystemClass::Message(0, "Error", "Unable to recover folders or processor engine failure occured during folder recovery.");
+			stat.setRecoverStatus("Failed");
+		  }
+			
+		}
+		else {
+		  SystemClass::Message(0, "Error", "Create a case before running this script!");
+		  stat.setRecoverStatus("Failed");
+		}
+
+		return success;
+	}
+
+}

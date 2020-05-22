@@ -1,0 +1,71 @@
+/*
+Project: AKA Triage Suite
+Sub-Project: AKA Triage Tool
+Component: Main Dialog 
+Purpose:	This class can be used to display the 
+			main dialog with checkbox selection 
+			options.
+Supporting tool: Encase
+Supporting URL: https://opentext.com
+Developer: Dave Posocco
+
+*/
+
+class MainClass;
+
+class MainDialogBuilder: DialogClass {
+  
+  MainClass Main;
+  SnapshotClass Snapshot;
+  CheckBoxClass CheckTriageExport, CheckHash, CheckIndex, CheckRecover, CheckExternalTools;
+
+  
+  MainDialogBuilder(DialogClass parent, MainClass main):
+    Main = main,
+    DialogClass(parent, "AKA Triage Tool: Operations Menu"),
+    Snapshot(),
+	
+	CheckTriageExport(this, "   Enable triage file export", 5, 5, 40, 15, 0, Main.triageOnOff),
+	CheckExternalTools(this, "   Run external tools", 20, 20, 40, 15, 0, Main.externalToolsOnOff),
+	CheckHash(this, "   (Encase) Hash Evidence", 120, 5, 40, 15, 0, Main.hashOnOff),
+	CheckIndex(this, "   (Encase) Index Evidence", 120, 20, 40, 15, 0, Main.indexOnOff),
+	CheckRecover(this, "   (Encase) Recover Folders", 120, 35, 40, 15, 0, Main.recoverOnOff)	
+
+  {
+	  CheckTriageExport.SetValue(true);
+	  CheckHash.SetValue(false);
+	  CheckIndex.SetValue(false);
+	  CheckRecover.SetValue(false);
+	  CheckExternalTools.SetValue(true);
+
+  }
+  
+/////////////////////////////Interupt equivalent, activated when user clicks anything///////////////////////
+  virtual void CheckControls() {
+    /* whenver overriding the CheckControls method you must ALWAYS call the parent implementation! */
+    DialogClass::CheckControls();
+	
+	if (CheckTriageExport.GetValue() == false) {
+		CheckExternalTools.SetValue(false);
+	}
+
+  }
+
+  virtual void ChildEvent(const EventClass &evt) {
+    /* whenver overriding the ChildEvent method you must ALWAYS call the parent implementation! */
+    DialogClass::ChildEvent(evt);
+  }
+
+}
+
+class MainDialogLauncher: DialogClass {
+
+  MainDialogBuilder diag;
+
+  MainDialogLauncher(DialogClass parent, MainClass main) :
+    DialogClass(parent, "Artificial Kyle Anderson's Options"),
+    diag(this, main)
+  {
+  }
+
+}

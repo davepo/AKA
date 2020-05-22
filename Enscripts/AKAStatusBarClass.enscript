@@ -1,0 +1,32 @@
+/*
+Project: AKA Triage Suite
+Sub-Project: AKA Triage Tool
+Component: Status bar
+Purpose:	This class is used to set the name and 
+			configure/set the progress of the process 
+			running in the Encase lower right hand corner status bar.
+Supporting tool: Encase
+Supporting URL: https://opentext.com
+Developer: Dave Posocco
+
+*/
+
+class StatBarClass {
+
+	StatBarClass()
+	{
+	}
+	
+	void SetInitStatBar(){
+		SystemClass::StatusRange("AKA - Triage", 10);
+		SystemClass::StatusMessage("AKA - Triage");
+		SystemClass::StatusPos(0);
+	}
+
+	void UpdateStatBar(double x){
+		SystemClass::StatusRange("AKA - Triage", 10);
+		SystemClass::StatusMessage("AKA - Triage");
+		SystemClass::StatusPos(x);
+	}
+	
+}
