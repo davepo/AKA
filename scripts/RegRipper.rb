@@ -8,15 +8,13 @@
 #Developer: Dave Posocco
 
 require 'timeout'
+require_relative '../AKA_Ruby_Script_helper'
+include Helpers
+$stdout.sync=true
 
 if ARGV.length != 3
 	puts "I need three arguments!"
 	exit
-end
-
-def put_return (string)
-	puts string
-	return string+"\n"
 end
 
 aka_script_path =ARGV[0]
@@ -24,52 +22,35 @@ paths_file = ARGV[1]
 evidence_paths_file= ARGV[2]
 
 log = ""
-$stdout.sync=true
 
 tools_dir = aka_script_path+"/tools"
-tools = Dir.children(tools_dir)
 
-log += put_return("\n\nRegRipper directory:\n")
-regripper_dir = ""
-tools.each do |tool|
-	tool = tools_dir+"/"+tool
-	if File.directory?(tool) 
-		temp = tool.downcase
-		if temp.include? "regripper"
-			regripper_dir = tool.gsub("\\","/")
-			log += put_return(regripper_dir + "\n")
-		end
-	end
-end
+log += Helpers.put_return("\nRegripper executable and paths:\n")
+rr_exe = "rip.exe"
+rr_full_path = Helpers.find_exe_path(rr_exe, tools_dir)
+rr_dir = rr_full_path.gsub(rr_exe, "")
+rr_dir.chop!
 
-log += put_return("\nRegripper executable:\n")
-Dir.chdir(regripper_dir)
-rr_exe = regripper_dir + "/rip.exe"
-log += put_return(rr_exe + "\n")
+log += Helpers.put_return(rr_exe + "\n" + rr_dir + "\n" + rr_full_path + "\n\n")
 
-log += put_return("\nRegistry paths:\n")
-reg_folder_paths = []
-export_paths = File.open(paths_file)
-export_paths.each do |line| 
-	temp = line.downcase
-	temp.gsub("\\","/")
-	if temp.include? "registry"
-		reg_folder_paths << line.chop
-		log += put_return(line.chop + "\n")
-	end
-end
+Dir.chdir(rr_dir)
 
-log += put_return("\nRunning regripper:\n")
-def run_regripper (path, rr_exe, log_res)
+log += Helpers.put_return("\nRegistry file folder paths:\n")
+reg_folder_paths = Helpers.find_all_paths_with_term("registry", paths_file)
+reg_folder_paths.each {|line| log += Helpers.put_return(line.chop + "\n")}
+
+
+log += Helpers.put_return("\nRunning regripper:\n")
+def run_regripper (path, rr_full_path, log_res)
 	dir_items = Dir.children(path)
 	dir_items.each do |original_item|
 		name = original_item
 		item = path + original_item
 		if File.directory?(item)
-			log_res += run_regripper(item+"\\", rr_exe, log_res)
+			log_res += run_regripper(item+"\\", rr_full_path, log_res)
 		elsif File.file?(item) and !item.include? ".txt"
 			command = ""
-			command = "\""+rr_exe + "\""+" -r " + "\""+item+"\""
+			command = "\""+rr_full_path + "\""+" -r " + "\""+item+"\""
 			case name.downcase		
 				when "system"
 					command += " -f system"
@@ -87,6 +68,7 @@ def run_regripper (path, rr_exe, log_res)
 					command += " -f userclass"
 			end
 			command += " > \"" + item +"-Ripped.txt\""
+			command.gsub!("\\","/")
 			result = nil
 			Timeout::timeout(900) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
 			if result == "Success" or result == "Failed"
@@ -102,19 +84,15 @@ def run_regripper (path, rr_exe, log_res)
 end
 
 reg_folder_paths.each do |path|
-	log += put_return(run_regripper(path, rr_exe, ""))
+	log += Helpers.put_return(run_regripper(path, rr_full_path, ""))
 end
 
-log += put_return("\n\nRegRipper processing complete.")
+log += Helpers.put_return("\n\nRegRipper processing complete.")
 
-aka_index = paths_file.index("AKA_Export")
-aka_offset = aka_index+10
-aka_negative_offset = aka_offset-paths_file.length
-aka_export_path = paths_file[0..aka_negative_offset]
-log_path = aka_export_path+"aka_script_logs/"
+log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('RegRipper.log', 'w') {|f| f.puts log}
+open('Registry_rip.log', 'w') {|f| f.puts log}
 
 sleep 5
 exit

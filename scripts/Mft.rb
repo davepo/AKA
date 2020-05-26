@@ -8,15 +8,13 @@
 #Developer: Dave Posocco
 
 require 'timeout'
+require_relative '../AKA_Ruby_Script_helper'
+include Helpers
+$stdout.sync=true
 
 if ARGV.length != 3
 	puts "I need three arguments!"
 	exit
-end
-
-def put_return (string)
-	puts string
-	return string+"\n"
 end
 
 aka_script_path =ARGV[0]
@@ -24,59 +22,45 @@ paths_file = ARGV[1]
 evidence_paths_file= ARGV[2]
 
 log = ""
-$stdout.sync=true
 
 tools_dir = aka_script_path+"/tools"
 
-log += put_return("\nMft parser directory:\n")
-mftcmd_dir = tools_dir
-log += put_return(mftcmd_dir+ "\n")
+log += Helpers.put_return("\nMFT parser executable and paths:\n")
+mftcmd_exe = "MFTECmd.exe"
+mftcmd_full_path = Helpers.find_exe_path(mftcmd_exe, tools_dir)
+mftcmd_dir = mftcmd_full_path.gsub(mftcmd_exe, "")
+mftcmd_dir.chop!
 
-log += put_return("\nMft parser executable:\n")
+log += Helpers.put_return(mftcmd_exe + "\n" + mftcmd_dir + "\n" + mftcmd_full_path + "\n\n")
+
 Dir.chdir(mftcmd_dir)
-mftcmd_exe = mftcmd_dir + "/MFTEcmd.exe"
-log += put_return(mftcmd_exe + "\n")
 
-log += put_return("\nMft folder paths:\n")
-mft_folder_paths = []
-export_paths = File.open(paths_file)
-export_paths.each do |line| 
-	temp = line.downcase
-	temp.gsub("\\","/")
-	if temp.include? "mft"
-		mft_folder_paths << line.chop
-		log += put_return(line.chop + "\n")
-	end
-end
+log += Helpers.put_return("\nMFT folder paths:\n")
+mft_folder_paths = Helpers.find_all_paths_with_term("mft", paths_file)
+mft_folder_paths.each {|line| log += Helpers.put_return(line.chop + "\n")}
 
 mft_folder_paths.each do |path|
 	chopped = path.chop
-	command = "\"" + mftcmd_exe + "\" -f \"" + path + "$MFT" + "\" --csv \"" + chopped + "\" --csvf Parsed_MFT.csv"
-	command.gsub("\\","/")
+	command = "\"" + mftcmd_full_path + "\" -f \"" + path + "$MFT" + "\" --csv \"" + chopped + "\" --csvf Parsed_MFT.csv"
+	command.gsub!("\\","/")
 	result = nil
-	log += put_return("Command:\n "+ command)
+	log += Helpers.put_return("Command:\n "+ command)
 	Timeout::timeout(1800) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
 	if result == "Success" or result == "Failed"
-		log += put_return("Mft parser: "+ result+"\n")
+		log += Helpers.put_return("Mft parser: "+ result+"\n")
 	else 
-		kill = %x( taskkill /IM MFTEcmd.exe /F )
-		log += put_return("Timeout: Killing MFt parser... " + kill + "\n")
+		kill = %x( taskkill /IM MFTECmd.exe /F )
+		log += Helpers.put_return("Timeout: Killing MFt parser... " + kill + "\n")
 		sleep 10
 	end
-
 end
 
+log += Helpers.put_return("\nMft processing complete.")
 
-log += put_return("\nMft processing complete.")
-
-aka_index = paths_file.index("AKA_Export")
-aka_offset = aka_index+10
-aka_negative_offset = aka_offset-paths_file.length
-aka_export_path = paths_file[0..aka_negative_offset]
-log_path = aka_export_path+"aka_script_logs/"
+log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('Mft.log', 'w') {|f| f.puts log}
+open('Mft_MFTEcmd.log', 'w') {|f| f.puts log}
 
 sleep 5
 exit

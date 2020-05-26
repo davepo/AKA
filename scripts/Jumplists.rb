@@ -8,15 +8,13 @@
 #Developer: Dave Posocco
 
 require 'timeout'
+require_relative '../AKA_Ruby_Script_helper'
+include Helpers
+$stdout.sync=true
 
 if ARGV.length != 3
 	puts "I need three arguments!"
 	exit
-end
-
-def put_return (string)
-	puts string
-	return string+"\n"
 end
 
 aka_script_path =ARGV[0]
@@ -24,61 +22,46 @@ paths_file = ARGV[1]
 evidence_paths_file= ARGV[2]
 
 log = ""
-$stdout.sync=true
 
 tools_dir = aka_script_path+"/tools"
 
-log += put_return("\n\Jumplist parser directory:\n")
-jlecmd_dir = tools_dir
-log += put_return(jlecmd_dir+ "\n")
+log += Helpers.put_return("\nJumplist parser executable and paths:\n")
+jlecmd_exe = "JLECmd.exe"
+jlecmd_full_path = Helpers.find_exe_path(jlecmd_exe, tools_dir)
+jlecmd_dir = jlecmd_full_path.gsub(jlecmd_exe, "")
+jlecmd_dir.chop!
 
-log += put_return("\Jumplist parser executable:\n")
+log += Helpers.put_return(jlecmd_exe + "\n" + jlecmd_dir + "\n" + jlecmd_full_path + "\n\n")
+
 Dir.chdir(jlecmd_dir)
-jlecmd_exe = jlecmd_dir + "/JLEcmd.exe"
-log += put_return(jlecmd_exe + "\n")
 
-log += put_return("\Jumplist folder paths:\n")
-jumplist_folder_paths = []
-export_paths = File.open(paths_file)
-export_paths.each do |line| 
-	temp = line.downcase
-	temp.gsub("\\","/")
-	if temp.include? "jumplist"
-		jumplist_folder_paths << line.chop
-		log += put_return(line.chop + "\n")
-	end
-end
+log += Helpers.put_return("\nJumplist folder paths:\n")
+jumplist_folder_paths = Helpers.find_all_paths_with_term("jumplist", paths_file)
+jumplist_folder_paths.each {|line| log += Helpers.put_return(line.chop + "\n")}
 
-log += put_return("\nRunning jumplist parser:\n")
+log += Helpers.put_return("\nRunning jumplist parser:\n")
 jumplist_folder_paths.each do |path|
 	chopped = path.chop
-	command = "\"" + jlecmd_exe + "\" -d \"" + chopped + "\" --csv \"" + chopped + "\" --csvf Parsed_Jumplist_files.csv"
-	command.gsub("\\","/")
+	command = "\"" + jlecmd_full_path + "\" -d \"" + chopped + "\" --csv \"" + chopped + "\" --csvf Parsed_Jumplist_files.csv"
+	command.gsub!("\\","/")
 	result = nil
-	log += put_return("Command:\n "+ command)
+	log += Helpers.put_return("Command:\n "+ command)
 	Timeout::timeout(180) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
 	if result == "Success" or result == "Failed"
-		log += put_return("Jumplist parser: "+ result+"\n")
+		log += Helpers.put_return("Jumplist parser: "+ result+"\n")
 	else 
-		kill = %x( taskkill /IM JLEcmd.exe /F )
-		log += put_return("Timeout: Killing jumplist parser... " + kill + "\n")
+		kill = %x( taskkill /IM JLECmd.exe /F )
+		log += Helpers.put_return("Timeout: Killing jumplist parser... " + kill + "\n")
 		sleep 10
 	end
-
 end
 
-log += put_return("\n\Jumplist processing complete.")
+log += Helpers.put_return("\n\Jumplist processing complete.")
 
-
-aka_index = paths_file.index("AKA_Export")
-aka_offset = aka_index+10
-aka_negative_offset = aka_offset-paths_file.length
-aka_export_path = paths_file[0..aka_negative_offset]
-log_path = aka_export_path+"aka_script_logs/"
+log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('Jumplist.log', 'w') {|f| f.puts log}
-
+open('Jumplists_JLEcmd.log', 'w') {|f| f.puts log}
 
 sleep 5
 exit

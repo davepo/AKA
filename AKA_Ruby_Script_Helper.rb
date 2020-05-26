@@ -18,22 +18,26 @@ module Helpers
   def Helpers.find_exe_path (exe, tool_dir)
     exe_path = ""
     Find.find(tool_dir) do |path|
-      if path.include? exe.downcase
+      temp_path = path.downcase
+      temp_exe = exe.downcase
+      if temp_path.include?(temp_exe)
         exe_path = path
       end
     end
-  return exe_path
+    return exe_path
   end
   
-  def Helpers.find_all_paths_with_term (search, paths_file)
+  def Helpers.find_all_paths_with_term (string, paths_file)
     found = []
+    temp_string = string.downcase
     all_paths = File.open(paths_file)
     all_paths.each do |line| 
-    temp = line.downcase
-    temp.gsub("\\","/")
-      if temp.include? search.downcase
+      line.gsub!("\\","/")
+      temp_line = line.downcase
+      if temp_line.include?(temp_string)
         found << line.chop
       end
+    end
     return found
   end
     
@@ -46,7 +50,7 @@ module Helpers
   end
   
   def Helpers.get_script_log_path (paths_file)
-    return Helpers.get_aka_export_path+"aka_script_logs/"
+    return Helpers.get_aka_export_path(paths_file) + "aka_script_logs/"
   end
     
 end
