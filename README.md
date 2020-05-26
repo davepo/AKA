@@ -1,6 +1,6 @@
 # AKA
 
-Overview
+## Overview
 
 This is a project that uses a custom EnPack for OpenText Encase that automatically exports useful DFIR artifacts and then uses a set of Ruby scripts to automate parsing and filtering those artifacts with additional tools.
 
@@ -13,7 +13,7 @@ This project was created and is maintained for myself and my friends.  I am full
 
 If this project is useful to you, great.  If not, don't use it.  Feel free to offer constructive critisism and request scripts or filters be added for any additional tools.
 
-Installation
+## Installation
 
 1) Install Ruby
 2) Clone the repository to your Encase Enscripts folder.
