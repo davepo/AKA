@@ -34,24 +34,24 @@ b) Clone the repository to your Encase Enscripts folder.
 ### 2) Tools Setup
 
 #### Option 1 (Automatic) 
-a) Run the 'setup.bat' file **as Administrator**.
+1) Run the 'setup.bat' file **as Administrator**.
 
 #### Option 2 (Manual)
-a) Download and extract each the tools from the README.md file in the 'tools' folder, into the 'tools' folder.  It is fine if the executables are in subdirectories, but they cannot be in zipped archives.
-b) Install the Ruby Gem's 'rubyzip' and 'down' from rubygems.org.
-c) Install the Arsenal Image Mounter driver with the ArsenalImageMounterCLISetup.exe file from their main repository.
-d) Extract the libewf x64 dlls from the Arsenal Image Mounter main repository into the same location as the aim_cli.exe file.
+1) Download and extract each the tools from the README.md file in the 'tools' folder, into the 'tools' folder.  It is fine if the executables are in subdirectories, but they cannot be in zipped archives.
+2) Install the Ruby Gem's 'rubyzip' and 'down' from rubygems.org.
+3) Install the Arsenal Image Mounter driver with the ArsenalImageMounterCLISetup.exe file from their main repository.
+4) Extract the libewf x64 dlls from the Arsenal Image Mounter main repository into the same location as the aim_cli.exe file.
 
 ### 3) Use
-a) In Encase: Create a case and add your evidence files.
-b) In Encase: From the Enscript menu, select 'Run' then navigate to and select the 'AKA_Triage_Tool.EnPack'.  
-*After the first run, it will appear in your Enscripts menu.*
-c) Make your selections and follow the prompts.
-d) Monitor the 'Consoles' tab.  This will let you know the current status.
-*The external tools will run in a command prompt that will appear during processing.  
-*Each mounted image will spawn as a process in their own command prompt.
-*Do not close this window until everything is complete.*
-e) When the external process complete, an image will pop-up letting you know. At this point you can confirm the main command prompt has completed.  
-*If so, you can close the window, end the mounted image processes, and then close those windows
-*At this point your free to explor the 'AKA_Exports' results folder, which will be located in the Encase case file's exports folder.*
-f) When the remaining Encase options complete, a dialog will appear to let you know.
+1) In Encase: Create a case and add your evidence files.
+2) In Encase: From the Enscript menu, select 'Run' then navigate to and select the 'AKA_Triage_Tool.EnPack'.  
+   *After the first run, it will appear in your Enscripts menu.*
+3) Make your selections and follow the prompts.
+4) Monitor the 'Consoles' tab and the active command prompt windows.  This will let you know the current status.
+   * The external tools will run in a command prompt that will appear during processing.  
+   * Each mounted image will spawn as a process in their own command prompt.
+   * Do not close the windows until everything is complete.
+5) When the external process complete, an image will pop-up letting you know. At this point you can confirm the main command prompt has completed.  
+   * If so, you can close the window, end the mounted image processes, and then close those windows
+   * At this point your free to explor the 'AKA_Exports' results folder, which will be located in the Encase case file's exports folder.
+6) When the remaining Encase options complete, a dialog will appear to let you know.
