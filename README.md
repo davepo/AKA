@@ -2,7 +2,9 @@
 
 ## Overview
 
-AKA *(in it's current iteration)* uses a custom EnPack for OpenText Encase to automatically exports useful DFIR artifacts and then triggers a set of Ruby scripts to automate parsing and filtering those artifacts with additional tools.  AKA isn't trying to reinvent the wheel, it's just providing an axle for a bunch of free/opensource wheels built by much smarter wheel makers to rotate on.
+AKA *(in it's current iteration)* uses a custom EnPack for OpenText Encase to automatically exports useful DFIR artifacts and then triggers a set of Ruby scripts to automate parsing and filtering those artifacts with additional tools.  It also mounts the associated evidence files as read-only and AV scans them with Windows Defender.  
+
+AKA isn't trying to reinvent the wheel, it's just providing an axle for a bunch of free/opensource wheels built by much smarter wheel makers to rotate on.
 
 ## Aside
 
@@ -19,13 +21,37 @@ At present, AKA requires a licensed Encase version 8.XX and Ruby.  *A standalone
 Ruby can be downloaded and installed from here:
 https://rubyinstaller.org/
 
-## Installation
+I've only tested this on up-to-date Windows 10 x64 systems.
 
-1) Download and install Ruby...
-2) Clone the repository to your Encase Enscripts folder.
-3) Download the tools from the README.md file in the 'tools' folder, into the 'tools' folder.  It is fine if the executables are in subdirectories, but they cannot be in zipped archives.
-4) In Encase: Create a case and add your evidence files.
-5) In Encase: From the Enscript menu, select 'Run' then navigate to and select the 'AKA_Triage_Tool.EnPack'.  After the first run, it will appear in your Enscripts menu.
-6) Make your selections and follow the prompts.
-7) Monitor the 'Consoles' tab.  This will let you know the current status. Note: The external tools will run in a command prompt that will appear during processing.  Do not close this window until everything is complete.
-8) When everything is complete, a dialog will appear to let you know.  At this point, you can safely close the opened command prompt.
+## Installation and Use Instructions
+
+### 1) Main Files Setup
+a) Download and install Ruby.
+
+b) Clone the repository to your Encase Enscripts folder. 
+*It should work from any location, but this is the most convinient. It has not been tested in other locations.*
+
+### 2) Tools Setup
+
+#### Option 1 (Automatic) 
+a) Run the 'setup.bat' file **as Administrator**.
+
+#### Option 2 (Manual)
+a) Download and extract each the tools from the README.md file in the 'tools' folder, into the 'tools' folder.  It is fine if the executables are in subdirectories, but they cannot be in zipped archives.
+b) Install the Ruby Gem's 'rubyzip' and 'down' from rubygems.org.
+c) Install the Arsenal Image Mounter driver with the ArsenalImageMounterCLISetup.exe file from their main repository.
+d) Extract the libewf x64 dlls from the Arsenal Image Mounter main repository into the same location as the aim_cli.exe file.
+
+### 3) Use
+a) In Encase: Create a case and add your evidence files.
+b) In Encase: From the Enscript menu, select 'Run' then navigate to and select the 'AKA_Triage_Tool.EnPack'.  
+*After the first run, it will appear in your Enscripts menu.*
+c) Make your selections and follow the prompts.
+d) Monitor the 'Consoles' tab.  This will let you know the current status.
+*The external tools will run in a command prompt that will appear during processing.  
+*Each mounted image will spawn as a process in their own command prompt.
+*Do not close this window until everything is complete.*
+e) When the external process complete, an image will pop-up letting you know. At this point you can confirm the main command prompt has completed.  
+*If so, you can close the window, end the mounted image processes, and then close those windows
+*At this point your free to explor the 'AKA_Exports' results folder, which will be located in the Encase case file's exports folder.*
+f) When the remaining Encase options complete, a dialog will appear to let you know.

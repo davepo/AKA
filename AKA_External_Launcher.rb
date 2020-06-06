@@ -16,7 +16,7 @@ puts ARGV[1]
 puts ARGV[2]
 puts ARGV[3]
 
-cmd="start cmd.exe /K ruby "+ARGV[0]+ARGV[1]+ARGV[2]+ARGV[2]
+cmd="start cmd.exe /K ruby "+ARGV[0]+ARGV[1]+ARGV[2]+ARGV[3]
 
 system(cmd)
 

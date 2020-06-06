@@ -2,11 +2,14 @@
 #Sub-Project: AKA External Processor
 #Component:  Helper file
 #Purpose:	This script contains a module of
-#			functions for use in scripting out 
-#     additional external tools.
+#			    functions for use in scripting out 
+#         additional external tools.
 #Developer: Dave Posocco
 
 require 'find'
+require 'win32ole'
+require 'rubygems'
+require 'zip'
 
 module Helpers
 
@@ -40,6 +43,17 @@ module Helpers
     end
     return found
   end
+
+  def Helpers.get_image_paths (paths_file)
+    images = []
+    all_paths = File.open(paths_file)
+    all_paths.each do |line| 
+      line.gsub!("\\","/")
+      temp_line = line.downcase
+      images << line.chop
+    end
+    return images
+  end
     
   def Helpers.get_aka_export_path (paths_file)
     aka_index = paths_file.index("AKA_Export")
@@ -52,5 +66,52 @@ module Helpers
   def Helpers.get_script_log_path (paths_file)
     return Helpers.get_aka_export_path(paths_file) + "aka_script_logs/"
   end
+
+  def Helpers.get_av_scan_output_path (paths_file)
+    return Helpers.get_aka_export_path(paths_file) + "av_scans/"
+  end
     
+  def Helpers.unzip (zipfile, destination)
+    new_dest = destination+File.basename(zipfile)[0..(File.basename(zipfile).length-5)] 
+    Dir.mkdir(new_dest)
+    new_dest = new_dest+"/"
+    Zip::File.open(zipfile) do |zip_file|
+      zip_file.each do |entry|
+        puts "Extracting #{entry.name}"
+        entry_path = File.join(new_dest, entry.name)
+        entry.extract(entry_path)
+      end
+    end
+  end
+  
+  def Helpers.unzip_files (zipfile, destination)
+    Zip::File.open(zipfile) do |zip_file|
+      zip_file.each do |entry|
+        puts "Extracting #{entry.name}"
+        entry.extract(File.join(destination, File.basename(entry.name)))
+      end
+    end
+  end
+    
+  def Helpers.unzip_file (zipfile, filename, destination)
+    Zip::File.open(zipfile) do |zip_file|
+      zip_file.each do |entry|
+        if entry.name.include?(filename)
+          puts "Extracting #{entry.name}"
+          entry.extract(File.join(destination, filename))
+        end
+      end
+    end
+  end
+
+  def Helpers.get_drives ()
+    filesys = WIN32OLE.new("Scripting.FileSystemObject")
+    drives = filesys.Drives
+    list = []
+    drives.each do |drive|
+      list << drive.DriveLetter
+    end
+    return list
+  end
+
 end

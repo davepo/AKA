@@ -8,3 +8,4 @@ If you don't want a specific tool to run, simply move the script from here into 
 Move the script back to this folder when you want it to run again.
 
 Note: AKA will attempt to run all '.rb' Ruby scripts in this folder.  Each script is passed three argument, whether or not they are used.
+    'ImageMounter.rb' and 'DefenderScan.rb' work together and should not be seperated.

@@ -53,10 +53,15 @@ log += Helpers.put_return("\nThis is the file containing the paths of the eviden
 evidence_paths_file = ARGV[2].gsub("\\","/")
 log += Helpers.put_return(evidence_paths_file)
 
-log += Helpers.put_return("\nCreating the log fiels directory...")
+log += Helpers.put_return("\nCreating the log files directory...")
 log_path = Helpers.get_script_log_path(paths_file)
 Dir.mkdir(log_path)
 log += Helpers.put_return(log_path)
+
+log += Helpers.put_return("\nCreating the AV scan results directory...")
+av_log_path = Helpers.get_av_scan_output_path(paths_file)
+Dir.mkdir(av_log_path)
+log += Helpers.put_return(av_log_path)
 
 log += Helpers.put_return("\nHere are all the export paths:")
 
@@ -93,19 +98,50 @@ script_files.each do |file|
 	log += Helpers.put_return(file)
 end
 
-log += Helpers.put_return("\nChaning to scripts dirctory...")
+log += Helpers.put_return("\nChaning to scripts directory...")
 
 Dir.chdir(scripts_dir)
 log += Helpers.put_return(Dir.pwd)
 
+def run_script(ruby_script, aka, paths, evidence)
+	run_log = ""
+	command = "ruby "+"\""+ruby_script+"\" \""+aka+"\" \""+paths+"\" \""+evidence+"\""
+	run_log += Helpers.put_return("\nRunning command:\n"+ command + "\n")
+	pid=Process.spawn(command)
+	run_log += Helpers.put_return("Running "+ruby_script+" as PID "+pid.to_s + "\n")
+	Process.wait(pid)
+	return run_log
+end
+
+log += Helpers.put_return("\nAttempting to start running scripts...")
 script_files.each do |file| 
 	if file.include?(".rb") 
-		command = "ruby "+"\""+file+"\" \""+aka_script_path+"\" \""+paths_file+"\" \""+evidence_paths_file+"\""
-		log += Helpers.put_return("\nRunning command:\n"+ command + "\n")
-		pid=Process.spawn(command)
-		log += Helpers.put_return("Running "+file+" as PID "+pid.to_s + "\n")
-		Process.wait(pid)
-		
+		unless file.include?("ImageMounter") or file.include?("DefenderScan")
+			log += run_script(file, aka_script_path, paths_file, evidence_paths_file)
+		end
+	end
+end
+
+log += Helpers.put_return("\nAttempting to mount evidence files...")
+pre_mount_drives = Helpers.get_drives()
+post_mount_drives = []
+mounted_drives = []
+script_files.each do |file|
+	if file.include?("ImageMounter.rb")
+		log += run_script(file, aka_script_path, paths_file, evidence_paths_file)
+	end
+end
+post_mount_drives = Helpers.get_drives()
+mounted_drives = post_mount_drives - pre_mount_drives
+mounted_drives_string = ""
+mounted_drives.each do |letter|
+	mounted_drives_string += letter
+end
+
+log += Helpers.put_return("\nAttempting to run AV scans...")
+script_files.each do |file|
+	if file.include?("DefenderScan.rb")
+		log += run_script(file, mounted_drives_string, paths_file, "")
 	end
 end
 
