@@ -28,6 +28,11 @@ ArsenalImageMounterCLISetup.exe /install
 echo.
 echo Setup complete.
 echo.
+echo.
+echo Removing downloaded archive files...
+del /q *.zip
+echo.
+echo.
 echo This setup does not contain a verification.
 echo.
 echo If desired, please manually verifiy the items listed in tools\README.md downloaded to the 'tools' folder.

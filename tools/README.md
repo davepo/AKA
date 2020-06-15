@@ -19,3 +19,6 @@ Specific tools from Eric's collection:
 - [LECmd](https://f001.backblazeb2.com/file/EricZimmermanTools/LECmd.zip), Lnk file parser
 - [MFTECmd](https://f001.backblazeb2.com/file/EricZimmermanTools/MFTECmd.zip), Mft parser
 - [PECmd](https://f001.backblazeb2.com/file/EricZimmermanTools/PECmd.zip), Prefetch parser
+
+### [The Sleuth Kit](https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.9.0/sleuthkit-4.9.0-win32.zip)
+Used for extracting the MFT from an image file.

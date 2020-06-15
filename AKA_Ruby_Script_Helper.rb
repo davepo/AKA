@@ -7,6 +7,7 @@
 #Developer: Dave Posocco
 
 require 'find'
+require 'fileutils'
 require 'win32ole'
 require 'rubygems'
 require 'zip'
@@ -17,7 +18,34 @@ module Helpers
     puts string
     return string + "\n"
   end
+
+  def Helpers.export_file (item, output_path)
+    begin
+      FileUtils.copy_stream(item, File.join(output_path,File.basename(item))) unless File.directory?(item)
+    rescue Exception => e
+      puts "\nRescued - export_file - "+ File.basename(item)
+      puts "\tException:   " + e.message + "\n"
+    end
+  end
   
+  def Helpers.export_file_as (item, new_name, output_path)
+    begin
+      FileUtils.copy_stream(item, File.join(output_path,new_name)) unless File.directory?(item)
+    rescue Exception => e
+      puts "\nRescued - export_file_as - "+ new_name
+      puts "\tException:   " + e.message + "\n"
+    end
+  end
+
+  def Helpers.export_folder (item, output_path)
+    begin
+      FileUtils.copy_entry(item, File.join(output_path,File.basename(item))) unless !File.directory?(item)
+    rescue Exception => e
+      puts "\nRescued - export_folder - "+ File.basename(item)
+      puts "\tException:   " + e.message + "\n"
+    end
+  end
+
   def Helpers.find_exe_path (exe, tool_dir)
     exe_path = ""
     Find.find(tool_dir) do |path|
@@ -112,6 +140,22 @@ module Helpers
       list << drive.DriveLetter
     end
     return list
+  end
+
+  def Helpers.delete_empty_dirs (path)
+    Find.find(path) do |item|
+      if File.directory?(item)
+        if Dir.empty?(item)
+          Dir.delete(item)
+        end
+      end
+    end
+  end
+
+  def Helpers.make_dir(path)
+    unless File.exist?(path)
+      Dir.mkdir(path) 
+    end
   end
 
 end

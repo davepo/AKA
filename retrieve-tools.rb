@@ -69,3 +69,10 @@ filename = tempfile.original_filename
 tempfile.close
 FileUtils.mv(tempfile.path, "./#{tempfile.original_filename}")
 Helpers.unzip('./PECmd.zip', './')
+
+tempfile = Down.download("https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.9.0/sleuthkit-4.9.0-win32.zip")
+dir = tempfile.path
+filename = tempfile.original_filename
+tempfile.close
+FileUtils.mv(tempfile.path, "./#{tempfile.original_filename}")
+Helpers.unzip('./sleuthkit-4.9.0-win32.zip', './')
