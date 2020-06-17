@@ -19,7 +19,7 @@ potential-remote-login.rb - Filters event logs for potential remote login eviden
     * Event ID 40 (Remote desktop service session X has been disconnected for reason Y)
 ##### System.evtx
     * Event ID 9009 (User closed out an RDP connection)
-##### Logon types
+##### Logon types (Applied to Security log ID's 4624,4634)
     * Type 3 (Network/SMB Authentication logon)
     * Type 8 (Cleartext network logon)
     * Type 10 (RDP/Terminal services)
