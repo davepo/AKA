@@ -21,5 +21,6 @@ potential-remote-login.rb - Filters event logs for potential remote login eviden
     * Event ID 9009 (User closed out an RDP connection)
 ##### Logon types (Applied to Security log ID's 4624,4634)
     * Type 3 (Network/SMB Authentication logon)
+    * Type 7 (Screen lock/unlock)
     * Type 8 (Cleartext network logon)
     * Type 10 (RDP/Terminal services)
