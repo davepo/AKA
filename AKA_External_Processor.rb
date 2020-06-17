@@ -74,6 +74,13 @@ unless File.exist?(av_log_path)
 end
 log += Helpers.put_return(av_log_path)
 
+log += Helpers.put_return("\nCreating the filters output directory...")
+filters_output_path = Helpers.get_filter_output_path(paths_file)
+unless File.exist?(filters_output_path)
+	Dir.mkdir(filters_output_path)
+end
+log += Helpers.put_return(filters_output_path)
+
 log += Helpers.put_return("\nHere are all the export paths:")
 
 export_paths = File.open(paths_file)
@@ -101,18 +108,23 @@ log += Helpers.put_return(proc_dir)
 
 log += Helpers.put_return("\nScripts directory")
 
-scripts_dir = proc_dir+"/scripts"
+scripts_dir = File.join(proc_dir,"/scripts")
 log += Helpers.put_return(scripts_dir)
+
+filters_dir = File.join(proc_dir,"/filters")
+log += Helpers.put_return(filters_dir)
 
 script_files = Dir.children(scripts_dir)
 script_files.each do |file| 
 	log += Helpers.put_return(file)
 end
 
-log += Helpers.put_return("\nChaning to scripts directory...")
+filter_files =  Dir.children(filters_dir)
+filter_files.each do |file|
+	log += Helpers.put_return(file)
+end
 
-Dir.chdir(scripts_dir)
-log += Helpers.put_return(Dir.pwd)
+log += Helpers.put_return("\nChaning to scripts directory...")
 
 def run_script(ruby_script, aka, paths, evidence)
 	run_log = ""
@@ -124,6 +136,9 @@ def run_script(ruby_script, aka, paths, evidence)
 	return run_log
 end
 
+Dir.chdir(scripts_dir)
+log += Helpers.put_return(Dir.pwd)
+
 log += Helpers.put_return("\nAttempting to start running scripts...")
 script_files.each do |file| 
 	if file.include?(".rb") 
@@ -132,6 +147,19 @@ script_files.each do |file|
 		end
 	end
 end
+
+Dir.chdir(filters_dir)
+log += Helpers.put_return(Dir.pwd)
+
+log += Helpers.put_return("\nAttempting to start filtering...")
+filter_files.each do |file| 
+	if file.include?(".rb") 
+		log += run_script(file, aka_script_path, paths_file, evidence_paths_file)
+	end
+end
+
+Dir.chdir(scripts_dir)
+log += Helpers.put_return(Dir.pwd)
 
 if mounted_drives_string == ""
 	log += Helpers.put_return("\nAttempting to mount evidence files...")

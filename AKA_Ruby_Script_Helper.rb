@@ -57,6 +57,10 @@ module Helpers
     end
     return exe_path
   end
+
+  def Helpers.find_file (file, base_path)
+    return Helpers.find_exe_path(file, base_path)
+  end
   
   def Helpers.find_all_paths_with_term (string, paths_file)
     found = []
@@ -97,6 +101,10 @@ module Helpers
 
   def Helpers.get_av_scan_output_path (paths_file)
     return Helpers.get_aka_export_path(paths_file) + "av_scans/"
+  end
+
+  def Helpers.get_filter_output_path (paths_file)
+    return Helpers.get_aka_export_path(paths_file) + "filter_output/"
   end
     
   def Helpers.unzip (zipfile, destination)
@@ -156,6 +164,14 @@ module Helpers
     unless File.exist?(path)
       Dir.mkdir(path) 
     end
+  end
+
+  def Helpers.clean_csv_header(head)
+    fixed = ""
+	  head.each do |line|
+	  	fixed += line.gsub(/[^a-zA-Z0-9\s]/i, '') + ", "
+	  end
+	  return fixed
   end
 
 end
