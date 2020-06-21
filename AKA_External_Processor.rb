@@ -11,6 +11,7 @@
 #Developer: Dave Posocco
 
 require_relative './AKA_Ruby_Script_helper'
+require 'fileutils'
 include Helpers
 $stdout.sync=true
 
@@ -73,6 +74,13 @@ unless File.exist?(av_log_path)
 	Dir.mkdir(av_log_path)
 end
 log += Helpers.put_return(av_log_path)
+
+log += Helpers.put_return("\nCreating the autoruns scan results directory...")
+autoruns_log_path = Helpers.get_autoruns_output_path(paths_file)
+unless File.exist?(autoruns_log_path)
+	Dir.mkdir(autoruns_log_path)
+end
+log += Helpers.put_return(autoruns_log_path)
 
 log += Helpers.put_return("\nCreating the filters output directory...")
 filters_output_path = Helpers.get_filter_output_path(paths_file)
@@ -138,11 +146,10 @@ end
 
 Dir.chdir(scripts_dir)
 log += Helpers.put_return(Dir.pwd)
-
 log += Helpers.put_return("\nAttempting to start running scripts...")
 script_files.each do |file| 
 	if file.include?(".rb") 
-		unless file.include?("ImageMounter") or file.include?("DefenderScan")
+		unless file.include?("ImageMounter") or file.include?("DefenderScan") or file.include?("Autoruns")
 			log += run_script(file, aka_script_path, paths_file, evidence_paths_file)
 		end
 	end
@@ -150,7 +157,6 @@ end
 
 Dir.chdir(filters_dir)
 log += Helpers.put_return(Dir.pwd)
-
 log += Helpers.put_return("\nAttempting to start filtering...")
 filter_files.each do |file| 
 	if file.include?(".rb") 
@@ -158,19 +164,15 @@ filter_files.each do |file|
 	end
 end
 
-Dir.chdir(scripts_dir)
+Dir.chdir(proc_dir)
 log += Helpers.put_return(Dir.pwd)
-
 if mounted_drives_string == ""
 	log += Helpers.put_return("\nAttempting to mount evidence files...")
 	pre_mount_drives = Helpers.get_drives()
 	post_mount_drives = []
 	mounted_drives = []
-	script_files.each do |file|
-		if file.include?("ImageMounter.rb")
-			log += run_script(file, aka_script_path, paths_file, evidence_paths_file)
-		end
-	end
+	log += run_script("ImageMounter.rb", aka_script_path, paths_file, evidence_paths_file)
+
 	post_mount_drives = Helpers.get_drives()
 	mounted_drives = post_mount_drives - pre_mount_drives
 	mounted_drives.each do |letter|
@@ -178,12 +180,26 @@ if mounted_drives_string == ""
 	end
 end
 
-log += Helpers.put_return("\nAttempting to run AV scans...")
-script_files.each do |file|
-	if file.include?("DefenderScan.rb")
-		log += run_script(file, mounted_drives_string, paths_file, "")
-	end
+if File.exist?(File.join(scripts_dir, "Autoruns.rb"))
+	Dir.chdir(scripts_dir)
+	log += Helpers.put_return("\nAttempting to run autoruns scans...")
+	log += run_script("Autoruns.rb", mounted_drives_string, paths_file, "")
 end
+
+if File.exist?(File.join(scripts_dir, "DefenderScan.rb"))
+	Dir.chdir(scripts_dir)
+	log += Helpers.put_return("\nAttempting to run AV scans...")
+	log += run_script("DefenderScan.rb", mounted_drives_string, paths_file, "")
+end
+
+log += Helpers.put_return("\nAttempting to close windows and remove mounted images...")
+
+tools_dir = File.join(proc_dir,"/tools")
+aim_ll = Helpers.find_exe_path("aim_ll.exe", tools_dir)
+kill = %x( taskkill /IM cmd.exe /F )
+log += Helpers.put_return("Killing cmd.exe processes... " + kill + "\n")
+unmount=system(aim_ll+" -d") ? "Success" : "Failed"
+log += Helpers.put_return("Unmounted virtual drives... " + unmount + "\n")
 
 log += Helpers.put_return("\nWell, looks like my work here is done.")
 
@@ -193,11 +209,19 @@ else
 	image_file = "AKA_Image.jpg"
 end
 Dir.chdir(aka_script_path)
-exec("start "+image_file)
+
+showimage=system("start "+image_file) ? "Success" : "Failed"
+log += Helpers.put_return("Displayed Image ... " + unmount + "\n")
 
 Dir.chdir(log_path)
+open('AKA_EXternal_Processor.log', 'a+') {|f| f.puts log}
 
-open('AKA_EXternal_Processor.log', 'w') {|f| f.puts log}
+time = Time.new
+puts "\nRenaming export folder .... "
+Dir.chdir(Helpers.get_aka_export_path(paths_file))
+Dir.chdir("..")
+File.rename("./AKA_Export", "./AKA_Export-"+time.strftime("%y%m%d%H%M"))
+puts "\nExport folder renamed and tagged with date stamp."
 
 sleep 5
 exit

@@ -49,10 +49,10 @@ log += Helpers.put_return(icat + "\n" + icat_dir + "\n" + icat_full_path + "\n\n
 
 Dir.chdir(fsstat_dir)
 
-command = fsstat + " \"" + evidence_path + "\" > \"" + File.join(output_path, "/fsstat_output.txt") + "\"" 
+command = fsstat + " \"" + evidence_path.gsub("/","\\") + "\" > \"" + File.join(output_path.gsub("/","\\"), "\\fsstat_output.txt") + "\"" 
 
 result = nil
-log += Helpers.put_return("Command:\n "+ command)
+log += Helpers.put_return("Command:\n"+ command)
 Timeout::timeout(1800) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
 if result == "Success" or result == "Failed"
     cluster = ""
@@ -63,7 +63,7 @@ if result == "Success" or result == "Failed"
         fsstat_file_data.each do |line|
             if line.downcase.include?("first cluster of mft:")
                 cluster = (line.chars.map{|x| x[/\d+/]}).join
-                command = ifind + " -d " + cluster + " \"" + evidence_path + "\" > \"" +File.join(output_path, "/ifind_output.txt") + "\""
+                command = ifind + " -d " + cluster + " \"" + evidence_path.gsub("/","\\") + "\" > \"" +File.join(output_path.gsub("/","\\"), "\\ifind_output.txt") + "\""
                 result = nil
                 log += Helpers.put_return("Command:\n "+ command)
                 Timeout::timeout(1800) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
@@ -71,7 +71,7 @@ if result == "Success" or result == "Failed"
                     log += Helpers.put_return("ifind: "+ result+"\n")
                     File.open(File.join(output_path, "/ifind_output.txt"), 'r') do |ifind_file| 
                         inum = ifind_file.read.chomp
-                        command = icat + " \"" + evidence_path + "\" " + inum + " >> \"" + File.join(output_path, "/$MFT") + "\""
+                        command = icat + " \"" + evidence_path.gsub("/","\\") + "\" " + inum + " >> \"" + File.join(output_path.gsub("/","\\"), "\\$MFT") + "\""
                         result = nil
                         log += Helpers.put_return("Command:\n "+ command)
                         Timeout::timeout(1800) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
@@ -91,7 +91,7 @@ log += Helpers.put_return("\nMFT extraction complete.")
 log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('carve-mft.log', 'w') {|f| f.puts log}
+open('carve-mft.log', 'a+') {|f| f.puts log}
 
 sleep 5
 exit

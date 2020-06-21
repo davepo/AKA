@@ -70,7 +70,7 @@ def run_regripper (path, rr_full_path, log_res)
 			command += " > \"" + item +"-Ripped.txt\""
 			command.gsub!("\\","/")
 			result = nil
-			Timeout::timeout(900) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
+			Timeout::timeout(1200) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
 			if result == "Success" or result == "Failed"
 				log_res += name+" "+ result+"\n"
 			else 
@@ -92,7 +92,7 @@ log += Helpers.put_return("\n\nRegRipper processing complete.")
 log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('Registry_rip.log', 'w') {|f| f.puts log}
+open('Registry_rip.log', 'a+') {|f| f.puts log}
 
 sleep 5
 exit

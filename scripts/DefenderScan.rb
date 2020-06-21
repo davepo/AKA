@@ -40,12 +40,12 @@ drive_letters.each do |drive|
 	result = nil
     log += Helpers.put_return("Command:\n "+ command)
     puts "Scanning..."
-	Timeout::timeout(1800) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
+	Timeout::timeout(86400) {result=system(command) ? "Success" : "Failed"} rescue Timeout::Error
 	if result == "Success" or result == "Failed"
 		log += Helpers.put_return("AV Scanning "+drive+":\\ "+ result+"\n")
 	else 
-		#kill = %x( taskkill /IM aim_cli.exe /F )
-		#log += Helpers.put_return("Timeout: Killing image mounter... " + kill + "\n")
+		kill = %x( taskkill /IM MpCmdRun.exe /F )
+		log += Helpers.put_return("Timeout: Killing defender scan... " + kill + "\n")
 		sleep 10
 	end
 end
@@ -55,7 +55,7 @@ log += Helpers.put_return("\nImage mounting complete.")
 log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('ImageMounting_aim_cli.log', 'w') {|f| f.puts log}
+open('AV_DefenderScanner.log', 'a+') {|f| f.puts log}
 
 sleep 5
 exit

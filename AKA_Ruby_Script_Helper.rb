@@ -96,15 +96,19 @@ module Helpers
   end
   
   def Helpers.get_script_log_path (paths_file)
-    return Helpers.get_aka_export_path(paths_file) + "aka_script_logs/"
+    return Helpers.get_aka_export_path(paths_file) + "01-Script_logs/"
   end
 
   def Helpers.get_av_scan_output_path (paths_file)
-    return Helpers.get_aka_export_path(paths_file) + "av_scans/"
+    return Helpers.get_aka_export_path(paths_file) + "02-AV_scans_results/"
   end
 
   def Helpers.get_filter_output_path (paths_file)
-    return Helpers.get_aka_export_path(paths_file) + "filter_output/"
+    return Helpers.get_aka_export_path(paths_file) + "03-Filter_results/"
+  end
+
+  def Helpers.get_autoruns_output_path (paths_file)
+    return Helpers.get_aka_export_path(paths_file) + "04-Autoruns_results/"
   end
     
   def Helpers.unzip (zipfile, destination)
@@ -132,9 +136,9 @@ module Helpers
   def Helpers.unzip_file (zipfile, filename, destination)
     Zip::File.open(zipfile) do |zip_file|
       zip_file.each do |entry|
-        if entry.name.include?(filename)
+        if entry.name.include?(filename) || entry.name.include?(filename.gsub("/","\\"))
           puts "Extracting #{entry.name}"
-          entry.extract(File.join(destination, filename))
+          entry.extract(File.join(destination, File.basename(filename)))
         end
       end
     end

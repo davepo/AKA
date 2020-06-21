@@ -8,7 +8,7 @@
 #Developer: Dave Posocco
 
 require 'timeout'
-require_relative '../AKA_Ruby_Script_helper'
+require_relative './AKA_Ruby_Script_helper'
 include Helpers
 $stdout.sync=true
 
@@ -36,8 +36,13 @@ log += Helpers.put_return(aim_exe + "\n" + aim_dir + "\n" + aim_full_path + "\n\
 Dir.chdir(aim_dir)
 
 log += Helpers.put_return("\nImage paths:\n")
-image_paths = Helpers.get_image_paths(evidence_paths_file)
-image_paths.each {|line| log += Helpers.put_return(line.chop + "\n")}
+image_paths = []
+if File.extname(evidence_paths_file) == ".txt"
+	image_paths = Helpers.get_image_paths(evidence_paths_file)
+	image_paths.each {|line| log += Helpers.put_return(line.chop + "\n")}
+else
+	image_paths << evidence_paths_file
+end
 
 image_paths.each do |path|
     chopped = path.chop
@@ -57,6 +62,7 @@ image_paths.each do |path|
 		#log += Helpers.put_return("Timeout: Killing image mounter... " + kill + "\n")
 		sleep 10
 	end
+	sleep 5
 end
 
 log += Helpers.put_return("\nImage mounting complete.")
@@ -64,7 +70,7 @@ log += Helpers.put_return("\nImage mounting complete.")
 log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('ImageMounting_aim_cli.log', 'w') {|f| f.puts log}
+open('ImageMounting_aim_cli.log', 'a+') {|f| f.puts log}
 
 sleep 5
 exit

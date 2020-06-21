@@ -63,7 +63,7 @@ log += Helpers.put_return("\n\nPrefetch processing complete.")
 log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('Prefetch_PEcmd.log', 'w') {|f| f.puts log}
+open('Prefetch_PEcmd.log', 'a+') {|f| f.puts log}
 
 sleep 5
 exit

@@ -61,7 +61,7 @@ log += Helpers.put_return("\n\Jumplist processing complete.")
 log_path = Helpers.get_script_log_path(paths_file)
 Dir.chdir(log_path)
 
-open('Jumplists_JLEcmd.log', 'w') {|f| f.puts log}
+open('Jumplists_JLEcmd.log', 'a+') {|f| f.puts log}
 
 sleep 5
 exit
