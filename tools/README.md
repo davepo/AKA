@@ -13,8 +13,8 @@ All of the tools associated with the included ruby scripts should be placed in t
 ### [Arsenal Imager Mounter](https://github.com/ArsenalRecon/Arsenal-Image-Mounter) 
 Command Line version and driver.
 
-### Joakim Schicht's [Mft2Csv](https://github.com/jschicht/Mft2Csv)
-Joakim's tool allows for parsing an input $MFT file or parsing the MFT of a live volume.
+### Joakim Schicht's [Mft2Csv](https://github.com/jschicht/Mft2Csv) and [RawCopy](https://github.com/jschicht/RawCopy)
+Joakim's tool allows for parsing an input $MFT file or parsing the MFT of a live volume, and extracting files from a mounted volume.
 
 ### Harlan Carvey's [RegRipper](https://github.com/keydet89/RegRipper2.8)
 Harlan's tool rips registry hives to a labeled text format.
