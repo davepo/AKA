@@ -1,8 +1,10 @@
 # Filters
 
+*For a great reference, see this [Ponder The Bits](https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-tracking-and-investigation/) blog post by Jonathon Poling*
+
 ## *potential-remote-login.rb*
 potential-remote-login.rb - Filters event logs for potential remote login evidence.
-*For a great reference, see this [Ponder The Bits](https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-tracking-and-investigation/) blog post by Jonathon Poling*
+
 ##### Security.evtx
     * Event ID 4624/4625 (User logon/failed logon)
     * Event ID 4634 (RDP disconnect or logoff)
@@ -24,3 +26,37 @@ potential-remote-login.rb - Filters event logs for potential remote login eviden
     * Type 7 (Screen lock/unlock)
     * Type 8 (Cleartext network logon)
     * Type 10 (RDP/Terminal services)
+
+## *potential-psexec-activity.rb*
+potential-psexec-activity.rb - Filters event logs for potential psexec activity evidence.
+
+##### Security.evtx
+*Source System*
+   * Event ID 4688/4689 (Process created/exited process name "psexec.exe")
+*Destination System*
+   * Event ID 5156 (Windows filtering platform allowed connect. With ports ":135" and ":445")
+   * Event ID 5140 (Network share object accessed. Include's admin share "\??\C:\Windows")
+   * Event ID 4672 (Special privileges assigned.)
+   * Event ID 4656/4663 (Requested handle/Attempted access to an object named "psexecsvc.exe")
+   * Event ID 5140 (Network share object accessed. Include's admin share "\\*\IPC$")
+   * Event ID 5145 (Network share objected checked if client can be granted access. Includes "psexecsvc" and "\??\C:\Windows")
+   * Event ID 4656/4660/4658 (Handle to an object was requested/deleted/closed. Includes "psexecsvc.exe")
+##### System.evtx
+*Destination System*
+   * Event ID 7045 (A service was installed. Includes "psexecsvc")
+   * Event ID 7036 (A service state changed.)
+
+## *potential-wmic-activity.rb*
+potential-wmic-activity.rb - Filters event logs for potential evidence of wmic activity.
+
+##### Security.evtx
+   * Event ID 4688/4689 (Process created/exited process name "wmic.exe")
+
+## *potential-powershell-activity.rb*
+potential-powershell-activity.rb - Filters event logs for potential evidence of powershell activity.
+
+##### Security.evtx
+   * Event ID 4688/4689 (Process created/exited process name "powershell.exe")
+   * Event ID 5156 (Windows filtering platform allowed connect. With "powershell.exe" or ports "47001",  "5985", or "5896")
+   * Event ID 4624 (User logon with type "3")
+   * Event ID 4634 (RDP disconnect or logoff with type "3")
