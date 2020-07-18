@@ -47,9 +47,13 @@ end
 image_paths.each do |path|
     chopped = path.chop
     if path.include? ".e01" or path.include? ".E01"
-        command = "start cmd /K \"\"" + aim_full_path + "\" /mount /readonly /filename=\"" + path + "\" /provider=libewf\""
-    else
-        command = "start cmd /K \"\"" + aim_full_path + "\" /mount /readonly /filename=\"" + path + "\" /provider=MultiPartRaw\""
+        command = "start cmd /K \"\"" + aim_full_path + "\" /mount /fakesig /filename=\"" + path + "\" /provider=libEWF /writeoverlay=\"" + path + ".diff\"\""
+	elsif path.include? ".001" or path.include? ".dd" or path.include? ".raw" or path.include? ".img"
+		command = "start cmd /K \"\"" + aim_full_path + "\" /mount /fakesig /filename=\"" + path + "\" /provider=MultiPartRaw /writeoverlay=\"" + path + ".diff\"\""
+	elsif path.include? ".aff4" 
+		command = "start cmd /K \"\"" + aim_full_path + "\" /mount /fakesig /filename=\"" + path + "\" /provider=libAFF4 /writeoverlay=\"" + path + ".diff\"\""
+	else
+		command = "start cmd /K \"\"" + aim_full_path + "\" /mount /fakesig /filename=\"" + path + "\" /provider=DiscUtils /writeoverlay=\"" + path + ".diff\"\""
     end
 	command.gsub!("\\","/")
 	result = nil

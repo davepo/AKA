@@ -10,10 +10,10 @@ All of the tools associated with the included ruby scripts should be placed in t
 
 ### The Ruby gem [rubyzip](https://rubygems.org/gems/rubyzip) by Alexander Simonov
 
-### [Arsenal Imager Mounter](https://github.com/ArsenalRecon/Arsenal-Image-Mounter) 
-Command Line version and driver.
+### Arsenal Imager Mounter [main download site](https://arsenalrecon.com/downloads/) and [github](https://github.com/ArsenalRecon/Arsenal-Image-Mounter) files.
+Main site Image Mounter and aim_ll command line tool from github.
 
-### Joakim Schicht's [Mft2Csv](https://github.com/jschicht/Mft2Csv) and [RawCopy](https://github.com/jschicht/RawCopy)
+### Joakim Schicht's [github tools](https://github.com/jschicht/) mft2csv, rawcopy, usnjrnl2csv, and extractusnjrnl. 
 Joakim's tool allows for parsing an input $MFT file or parsing the MFT of a live volume, and extracting files from a mounted volume.
 
 ### Harlan Carvey's [RegRipper](https://github.com/keydet89/RegRipper2.8)
@@ -26,5 +26,4 @@ Specific tools from Eric's collection:
 - [LECmd](https://f001.backblazeb2.com/file/EricZimmermanTools/LECmd.zip), Lnk file parser
 - [PECmd](https://f001.backblazeb2.com/file/EricZimmermanTools/PECmd.zip), Prefetch parser
 
-### [The Sleuth Kit](https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.9.0/sleuthkit-4.9.0-win32.zip)
-Used for extracting the MFT from an image file.
+### Clam AV [scanner](https://www.clamav.net/)

@@ -1,0 +1,24 @@
+**Version tracker for cloners to determine if they have the most up-to-date repository**
+-This file will be updated with every push to the master repository.
+
+Version 3.20.0718 (Timestamp: 1801)
+--Changes: 
+            changed the arsenal imager download from github to the main site;
+            altered the setup batch files to account for the driver installation;
+            simplified the tool downloads script and depricated the previous version; 
+            added usnjrnl extraction; 
+            added usnjrnl parsing;
+            depricated the sleuth kit mft carver; 
+            added accepteula switch to autoruns;
+            altered the image mounter to mount as write/temporary;
+            depricated windows defender av scan;
+            added clam av scan;
+            added switch to skip av scanning;
+            added powershell event log to powershell filter;
+            added differencing file cleanup;
+            removed unsed code from mft parser script;
+
+Version 3.20.0621 (Timestamp: 2155)
+Version 3.20.0620 (Timestamp: 2049)
+
+----

@@ -14,12 +14,28 @@ timeout /t 3
 echo.
 echo About to install Arsenal Image Mounter driver.
 echo.
-echo Please accept the UAC notification if/when prompted.
+echo This will open the GUI application.  
+echo 1) When prompted, select the option to INSTALL or UPGRADE the driver.
+echo 2) When the driver finishes install, close out of the GUI and this script will continue.
 echo.
-timeout /t 5
-echo Installing Arsenal driver...
+echo Press any button to continue with Arsenal driver install.
 echo.
-ArsenalImageMounterCLISetup.exe /install
+echo.
+pause
+for /R %%f in (ArsenalImageMounter.exe) do @IF EXIST %%f start /B /wait %%f
+echo.
+echo Arsenal step complete.
 echo.
 echo Setup complete.
+echo.
+echo This setup does not contain a verification.
+echo.
+echo If desired, please manually verifiy the items listed in tools\README.md downloaded to the 'tools' folder.
+echo.
+echo.
+echo.
+echo PLEASE REVIEW THE LICENSES FOR ALL EXTERNAL TOOLS TO ENSURE YOUR USE CASE IS NOT IN VIOLATION.
+echo.
+echo.
+echo.
 pause

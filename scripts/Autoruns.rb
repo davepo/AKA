@@ -44,7 +44,7 @@ autoruns_dir.chop!
 log += Helpers.put_return(autoruns_exe + "\n" + autoruns_dir + "\n" + autoruns_full_path + "\n\n")
 Dir.chdir(autoruns_dir)
 drive_letters.each do |drive|
-    command = autoruns_exe + " -a * -c -o \"#{File.join(autoruns_log_path, "Mounted_Volume-"+drive+".csv")}\" -z #{drive}:\\Windows -nobanner" 
+    command = autoruns_exe + " -a * -c -o \"#{File.join(autoruns_log_path, "Mounted_Volume-"+drive+".csv")}\" -z #{drive}:\\Windows -nobanner -accepteula" 
 	command.gsub!("/","\\")
 	result = nil
     log += Helpers.put_return("Command:\n "+ command)

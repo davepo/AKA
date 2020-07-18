@@ -164,6 +164,17 @@ module Helpers
     end
   end
 
+  def Helpers.delete_diff_files(evidence_path_file)
+    file = File.open(evidence_path_file)
+    paths = file.readlines.map(&:chomp)
+    file.close
+    paths.each do |path|
+      if File.exist?(path+".diff")
+        File.delete(path+".diff")
+      end
+    end
+  end
+
   def Helpers.make_dir(path)
     unless File.exist?(path)
       Dir.mkdir(path) 

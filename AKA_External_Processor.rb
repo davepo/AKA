@@ -16,8 +16,8 @@ include Helpers
 $stdout.sync=true
 
 if ARGV.length != 3
-	unless ARGV.length == 4
-		puts "I need three or four arguments!"
+	unless ARGV.length == 4 || ARGV.length == 5
+		puts "I need 3 to 5 arguments!"
 		exit
 	end
 end
@@ -57,8 +57,13 @@ evidence_paths_file = ARGV[2].gsub("\\","/")
 log += Helpers.put_return(evidence_paths_file)
 
 mounted_drives_string = ""
-if ARGV.length == 4
+unless ARGV[3] == nil
 	mounted_drives_string = ARGV[3]
+end
+
+skip_av_scan = ""
+unless ARGV[4] == nil
+	skip_av_scan = ARGV[4]
 end
 
 log += Helpers.put_return("\nCreating the log files directory...")
@@ -149,7 +154,7 @@ log += Helpers.put_return(Dir.pwd)
 log += Helpers.put_return("\nAttempting to start running scripts...")
 script_files.each do |file| 
 	if file.include?(".rb") 
-		unless file.include?("ImageMounter") or file.include?("DefenderScan") or file.include?("Autoruns")
+		unless file.include?("ImageMounter") or file.include?("AVScan") or file.include?("Autoruns")
 			log += run_script(file, aka_script_path, paths_file, evidence_paths_file)
 		end
 	end
@@ -186,10 +191,10 @@ if File.exist?(File.join(scripts_dir, "Autoruns.rb"))
 	log += run_script("Autoruns.rb", mounted_drives_string, paths_file, "")
 end
 
-if File.exist?(File.join(scripts_dir, "DefenderScan.rb"))
+if File.exist?(File.join(scripts_dir, "AVScan.rb")) && skip_av_scan != "true"
 	Dir.chdir(scripts_dir)
 	log += Helpers.put_return("\nAttempting to run AV scans...")
-	log += run_script("DefenderScan.rb", mounted_drives_string, paths_file, "")
+	log += run_script("AVScan.rb", mounted_drives_string, paths_file, "")
 end
 
 log += Helpers.put_return("\nAttempting to close windows and remove mounted images...")
@@ -198,8 +203,12 @@ tools_dir = File.join(proc_dir,"/tools")
 aim_ll = Helpers.find_exe_path("aim_ll.exe", tools_dir)
 kill = %x( taskkill /IM cmd.exe /F )
 log += Helpers.put_return("Killing cmd.exe processes... " + kill + "\n")
+
 unmount=system(aim_ll+" -d") ? "Success" : "Failed"
 log += Helpers.put_return("Unmounted virtual drives... " + unmount + "\n")
+
+log += Helpers.put_return("\nAttempting to remove differencing images...")
+Helpers.delete_diff_files(evidence_paths_file)
 
 log += Helpers.put_return("\nWell, looks like my work here is done.")
 

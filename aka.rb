@@ -21,6 +21,7 @@ output_path = ""
 class_type = ""
 help = false
 export_only = false
+no_av_scan = "false"
 
 for i in 0 ... ARGV.length
    if ARGV[i] == "-h" || ARGV[i] == "--help"
@@ -34,6 +35,8 @@ for i in 0 ... ARGV.length
 		output_path = ARGV[i+1]
 	elsif ARGV[i] == "--export-only"
 		export_only = true
+	elsif ARGV[i] == "--no-av-scan"
+		no_av_scan = "true"
 	end
 end
 
@@ -41,12 +44,13 @@ if help==true
 	puts "\nAKA Standalone Help\n\n"
 	puts "Usage:\n"
 	puts "\taka.rb -s|--source {Source Type} {Source Path} -o|--output {Output Path}\n\n"
-	puts "Source Type {img|vol|dir}:\n\timg -> image -> Can be an .E01, .DD, or .IMG format image file.\n\tvol -> volume -> A mounted drive path.\n\tdir -> directory -> A directory containing one or more image file (subdirectories included)\n\n"
+	puts "Source Type {img|vol|dir}:\n\timg -> image -> Can be an .E01, .DD, .IMG, .001, .VDI, .VHD, .VHDX, or .VMDK format image file.\n\tvol -> volume -> A mounted drive path.\n\tdir -> directory -> A directory containing one or more image file (subdirectories included)\n\n"
 	puts "Source:\nPath to the source.\n\tAn image file: ie. \"C:\\Evidence\\file.E01\"\nA mounted volume: ie. \"E:\\\"\n\tA directory of image files: \"C:\\Evidence\"\n\n"
 	puts "Image example:\n\taka.rb -s img \"C:\\Evidence\\file.E01\" -o \"C:\\Cases\\Output\"\n"
 	puts "Image example:\n\taka.rb -s vol \"E:\\\" -o \"C:\\Cases\\Output\"\n"
 	puts "Image example:\n\taka.rb -s dir \"D:\\Evidence\\ImageFiles\" -o \"C:\\Cases\\Output\"\n\n"
 	puts "\nUse the option \"--export-only\" to export artifacts, but not run any tools or filters.\n\n"
+	puts "\nUse the option \"--no-av-scan\" to export artifacts, run tools and filters, but skip AV scanning the evidence target.\n\n"
 	exit
 end
 
@@ -75,8 +79,9 @@ unless File.exist?(output_path)
 	exit
 end
 
+valid_types = [".e01", ".dd", ".raw", ".001", ".img", ".vdi", ".vhd", ".vmdk"]
 if source_type == "img"
-	unless File.extname(source).downcase == ".e01" || File.extname(source).downcase == ".dd" || File.extname(source).downcase == ".img"
+	unless valid_types.include?(File.extname(source).downcase) 
 		puts "\nError, not a valid image type."
 		puts "Use '-h' or '--help' for help.\n\n"
 		exit
@@ -106,7 +111,9 @@ evidence_list = []
 if source_type == "img" || source_type == "vol"
 	evidence_list << source
 elsif source_type == "dir"
-	evidence_list = Dir.glob(File.join(source.gsub('\\','/'),"/**/*.e01")) + Dir.glob(File.join(source.gsub('\\','/'),"/**/*.img")) + Dir.glob(File.join(source.gsub('\\','/'),"/**/*.dd"))
+	valid_types.each do |type|
+		evidence_list = evidence_list + Dir.glob(File.join(source.gsub('\\','/'),"/**/*#{type}"))
+	end
 end
 
 evidence_paths_file = File.join(aka_export, "/evidencePaths.txt")
@@ -130,12 +137,14 @@ paths_file = File.join(aka_export, "/exportsPaths.txt")
 paths_list = []
 mounted_drives_string = ""
 
-def run_script(ruby_script, arg1, arg2, arg3, optional)
+def run_script(ruby_script, arg1, arg2, arg3, optional_1, optional_2)
 	run_log = ""
-	if optional == ""
+	if optional_1 == ""
 		command = "ruby "+"\""+ruby_script+"\" \""+arg1+"\" \""+arg2+"\" \""+arg3+"\""
+	elsif optional_2 == ""
+		command = "ruby "+"\""+ruby_script+"\" \""+arg1+"\" \""+arg2+"\" \""+arg3+"\" \""+optional_1+"\""
 	else
-		command = "ruby "+"\""+ruby_script+"\" \""+arg1+"\" \""+arg2+"\" \""+arg3+"\" \""+optional+"\""
+		command = "ruby "+"\""+ruby_script+"\" \""+arg1+"\" \""+arg2+"\" \""+arg3+"\" \""+optional_1+"\" \""+optional_2+"\""
 	end
 	run_log += Helpers.put_return("\nRunning command:\n"+ command + "\n")
 	pid=Process.spawn(command)
@@ -167,7 +176,7 @@ evidence_list.each do |evidence|
 		pre_mount_drives = Helpers.get_drives()
 		post_mount_drives = []		
 		Dir.chdir(proc_dir)
-		log += run_script("ImageMounter.rb", proc_dir, paths_file, evidence, "")
+		log += run_script("ImageMounter.rb", proc_dir, paths_file, evidence, "", "")
 		post_mount_drives = Helpers.get_drives()
 
 		mounted_drives = mounted_drives + (post_mount_drives - pre_mount_drives)
@@ -213,6 +222,10 @@ evidence_list.each do |evidence|
 		mft_path = File.join(File.join(ev_id_export, drive),"MFT")
 		Helpers.make_dir(mft_path)
 		paths_list << mft_path + "/"
+
+		usnj_path = File.join(File.join(ev_id_export, drive),"UsnJournal")
+		Helpers.make_dir(usnj_path)
+		paths_list << usnj_path + "/"
 
 		usb_path = File.join(File.join(ev_id_export, drive),"USB")
 		Helpers.make_dir(usb_path)
@@ -369,18 +382,20 @@ evidence_list.each do |evidence|
 			end
 		end
 
-		#Suspicious files
+		#Suspicious files - Future addition.
 
 		#MFT
 		if File.exist?(drive+":/$MFT")
 			Dir.chdir(proc_dir)
-			unless source_type == "vol"
-				log += Helpers.put_return("\nAttempting to extract the MFT...")
-				log += run_script("carve-mft.rb", evidence, mft_path, paths_file, "")
-			else 
-				log += Helpers.put_return("\nAttempting to extract MFT through low level methods...")
-				log += run_script("carve-vol-mft.rb", mounted_drives_string, mft_path, paths_file, "")
-			end
+			log += Helpers.put_return("\nAttempting to extract MFT through low level methods...")
+			log += run_script("carve-mft.rb", mounted_drives_string, mft_path, paths_file, "", "")
+		end
+
+		#USNJounral
+		if File.exist?(drive+":/$Extend")
+			Dir.chdir(proc_dir)
+			log += Helpers.put_return("\nAttempting to extract UsnJrnl through low level methods...")
+			log += run_script("carve-usnjournal.rb", mounted_drives_string, usnj_path, paths_file, "", "")
 		end
 		
 		#Write log
@@ -404,7 +419,7 @@ log += Helpers.put_return("\nWrote file: "+ paths_file + "\n")
 
 unless export_only
 	Dir.chdir(proc_dir)
-	run_script("AKA_External_Processor.rb", proc_dir, paths_file, evidence_paths_file, mounted_drives_string)
+	run_script("AKA_External_Processor.rb", proc_dir, paths_file, evidence_paths_file, mounted_drives_string, no_av_scan)
 else
 	log += Helpers.put_return("\nAttempting to close windows and remove mounted images...")
 	tools_dir = File.join(proc_dir,"/tools")

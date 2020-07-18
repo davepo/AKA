@@ -28,7 +28,7 @@ evtx_folder_paths = Helpers.find_all_paths_with_term("event_logs", paths_file)
 evtx_folder_paths.each {|line| log += Helpers.put_return(line.chop + "\n")}
 
 
-log += Helpers.put_return("\nFiltering remote login related event log data...\n")
+log += Helpers.put_return("\nFiltering PowerShell related event log data...\n")
 
 script_output_path = File.join(Helpers.get_filter_output_path(paths_file),File.basename(__FILE__))
 unless File.exist?(script_output_path)
@@ -65,6 +65,9 @@ evtx_folder_paths.each do |path|
             log += "Failed to find or open: #{image_identifier} #{drive_identifier} Security.csv\n"
         end
         file.close
+    end
+    if File.exist?(Helpers.find_file("Powershell.csv",path))
+        Helpers.export_file(Helpers.find_file("Powershell.csv",path), output_path)
     end
 
 end

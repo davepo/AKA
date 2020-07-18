@@ -10,6 +10,16 @@ echo.
 timeout /t 2
 echo.
 cd tools
+echo.
+echo About to setup ClamAV
+echo.
+cd ..
+ruby clamav-setup.rb
+echo.
+echo About to download CLamAV definitions.
+cd tools
+for /R %%f in (freshclam.exe) do @IF EXIST %%f start /B /wait %%f
+echo.
 echo Removing downloaded archive files...
 del /q *.zip
 echo.
