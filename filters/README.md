@@ -1,6 +1,6 @@
 # Filters
 
-*For a great reference, see this [Ponder The Bits](https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-tracking-and-investigation/) blog post by Jonathon Poling*
+*For some good reference, see this [Ponder The Bits](https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-tracking-and-investigation/) blog post by Jonathon Poling and this [Detecting Lateral Movement Through Event Logs](https://www.jpcert.or.jp/english/pub/sr/20170612ac-ir_research_en.pdf) report by JP-CERT.*
 
 ## *potential-remote-login.rb*
 potential-remote-login.rb - Filters event logs for potential remote login evidence.
