@@ -3,6 +3,13 @@
 @echo off
 title AKA Setup
 echo Current directory: %cd%
+echo Installing 'rubyzip' and 'down' gems...
+echo.
+call gem install 'rubyzip'
+echo.
+call gem install 'down'
+echo.
+timeout /t 3
 echo Downloading tools...
 echo.
 ruby retrieve-tools.rb
